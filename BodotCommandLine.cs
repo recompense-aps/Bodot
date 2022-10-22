@@ -35,6 +35,18 @@ namespace Bodot
 		)]
 		public bool Zip { get; set; } = false;
 
+		[Option(
+			Description = "Sets up option",
+			ShortName = "u"
+		)]
+		public bool Up { get; set; } = false;
+
+		[Option(
+			Description = "Sets down option",
+			ShortName = "dn"
+		)]
+		public bool Down { get; set; } = false;
+
 		[Argument(0)]
 		public string[]? Args { get; set; }
 

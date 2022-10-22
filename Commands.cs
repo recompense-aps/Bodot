@@ -15,8 +15,18 @@ namespace Bodot
 				$"|-----------|",
 				$"|---Bodot---|",
 				$"|--v0.0.0---|",
-				$"|-----------|"
+				$"|-----------|\n"
 			);
+
+			Out(
+				LocalBodotConfig.LastLoadedString
+			);
+
+			if (!File.Exists("./bodot.config"))
+				Out("[!] No config found in current directory\n", ConsoleColor.Yellow, ConsoleColor.Black);
+			
+			if (!File.Exists(LocalBodotConfig.Instance.GodotFilePath))
+				Out("[!] Godot binary path is invalid\n", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			return (null, true);
 		}
@@ -58,6 +68,10 @@ namespace Bodot
 			{ "UseLog", value => LocalBodotConfig.Instance.UseLog = value.ToLower() == "true" },
 			{ "GodotFilePath", value => LocalBodotConfig.Instance.GodotFilePath = value },
 			{ "MetaVersion", value => LocalBodotConfig.Instance.MetaVersion = value },
+			{ "MajorVersion", value => LocalBodotConfig.Instance.MajorVersion = value },
+			{ "MinorVersion", value => LocalBodotConfig.Instance.MinorVersion = value },
+			{ "PatchVersion", value => LocalBodotConfig.Instance.PatchVersion = value },
+			{ "ProjectName", value => LocalBodotConfig.Instance.ProjectName = value },
 			{ "AutoIncrementPath", value => LocalBodotConfig.Instance.AutoIncrementPatch = value.ToLower() == "true" }
 		};
 

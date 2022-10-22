@@ -7,12 +7,18 @@ namespace Bodot
 		private const string filename = "./bodot.config";
 
 		[JsonIgnore]
+		public static string LastLoadedString { get; private set; } = "";
+
+		[JsonIgnore]
 		public static LocalBodotConfig Instance { get; private set;} = new LocalBodotConfig();
 
 		public static void Load()
 		{
 			if (File.Exists(filename))
-				Instance = JsonConvert.DeserializeObject<LocalBodotConfig>(File.ReadAllText(filename)) ?? new LocalBodotConfig();
+			{
+				LastLoadedString = File.ReadAllText(filename);
+				Instance = JsonConvert.DeserializeObject<LocalBodotConfig>(LastLoadedString) ?? new LocalBodotConfig();
+			}	
 		}
 
 		public static void Save()

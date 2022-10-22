@@ -34,23 +34,6 @@ To build all available exports
 To build and zip exported binaries
 `bodot --build|-b --zip|-z`
 
-To promote patch
-`bodot --patch --up 1`
+To set config options
+`bodot --config [OPTION] [VALUE]` 
 
-To demote patch
-`bodot --patch --down 1`
-
-To promote minor
-`bodot --minor --up 1`
-
-To demote minor
-`bodot --minor --down 1`
-
-To promote major
-`bodot --major --up 1`
-
-To demote major
-`bodot --major --down 1`
-
-To set the meta
-`bodot --meta alpha|beta|etc`

@@ -91,21 +91,47 @@ namespace Bodot
 		public override bool ShouldExecute(BodotCommandLine commandLine) => commandLine.Build;
 		public override (object? data, bool success) Execute(BodotCommandLine commandLine)
 		{
+			var exportConfigFile = File.ReadAllLines("./export_presets.cfg");
+
 			var root = $"./{LocalBodotConfig.Instance.ExportOutputPath}/{LocalBodotConfig.Instance.SemanticVersion}";
 
-			Directory.CreateDirectory(root);
+			var presets = exportConfigFile
+				.Where(x => x.Contains("name=") && !x.Contains("_"))
+				.Select(x => x.Split('=').ElementAtOrDefault(1) ?? "")
+				.Where(x => !string.IsNullOrEmpty(x))
+			;
 
-			Godot.Create()
-				.WithArg("--export")
-				.WithArg("--no-window")
-				.WithArg("\"Windows Desktop\"")
-				.WithArg($"{root}/{LocalBodotConfig.Instance.ComputedExportName}.exe")
-				.Execute();
-			
-			if (commandLine.Zip)
+			var betterPresets = presets.Select(x => x.ToLower().Replace(" ", "-").Replace("\"", "").Replace("/", "-"));
+
+			Out("Exporting for presets: " + string.Join(",", presets) + "\n");
+
+			foreach(var (preset, betterPreset) in presets.Zip(betterPresets))
 			{
-				Out("Creating zip archive...");
-				ZipFile.CreateFromDirectory(root, $"./{LocalBodotConfig.Instance.ExportOutputPath}/{LocalBodotConfig.Instance.SemanticVersion}.zip");
+				Out($"\n========================BEGIN {preset}========================\n", ConsoleColor.DarkCyan, ConsoleColor.Black);
+
+				Directory.CreateDirectory($"{root}/{betterPreset}");
+
+				var fileName = $"{root}/{betterPreset}/{LocalBodotConfig.Instance.ComputedExportName}";
+
+				if (betterPreset.Contains("windows"))
+					fileName += ".exe";
+
+				Godot.Create()
+					.WithArg("--export")
+					.WithArg("--no-window")
+					.WithArg($"{preset}")
+					.WithArg(fileName)
+					.Execute();
+			
+				if (commandLine.Zip)
+				{
+					Out("Creating zip archive...");
+					var zipName = $"./{LocalBodotConfig.Instance.ExportOutputPath}/{LocalBodotConfig.Instance.SemanticVersion}-{betterPreset}.zip";
+					ZipFile.CreateFromDirectory($"{root}/{betterPreset}", zipName);
+
+					File.Move(zipName, $"./{root}/{betterPreset}/{LocalBodotConfig.Instance.SemanticVersion}-{betterPreset}.zip");
+				}
+				Out($"\n========================END {preset}========================\n", ConsoleColor.DarkCyan, ConsoleColor.Black);
 			}
 
 			if (LocalBodotConfig.Instance.AutoIncrementPatch)

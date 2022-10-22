@@ -105,6 +105,18 @@ namespace Bodot
 		public override bool ShouldExecute(BodotCommandLine commandLine) => commandLine.Build;
 		public override (object? data, bool success) Execute(BodotCommandLine commandLine)
 		{
+			if (!File.Exists("./bodot.config"))
+			{
+				Out("[!] No config found in current directory\n", ConsoleColor.Yellow, ConsoleColor.Black);
+				return (null, false);
+			}
+
+			if (!File.Exists("./export_presets.cfg"))
+			{
+				Out("[!] No export_presets.cfg in current directory. Please configure exports in the godot editor\n", ConsoleColor.Yellow, ConsoleColor.Black);
+				return (null, false);
+			}
+
 			var exportConfigFile = File.ReadAllLines("./export_presets.cfg");
 
 			var root = $"./{LocalBodotConfig.Instance.ExportOutputPath}/{LocalBodotConfig.Instance.SemanticVersion}";

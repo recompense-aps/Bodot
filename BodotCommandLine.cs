@@ -81,7 +81,7 @@ namespace Bodot
 
 						if (!success)
 						{
-							Output.Out($"Failed to execute command {command.Name()}", ConsoleColor.Red, ConsoleColor.Black);
+							Output.Out($"Failed to execute {command.Name()}", ConsoleColor.Red, ConsoleColor.Black);
 						}
 						else if (data != null)
 						{
@@ -90,7 +90,7 @@ namespace Bodot
 					}
 					catch(Exception e)
 					{
-						Output.Out($"Failed to execute command {command.Name()}. {e.Message}", ConsoleColor.Red, ConsoleColor.Black);
+						Output.Out($"Failed to execute {command.Name()}. {e.Message}", ConsoleColor.Red, ConsoleColor.Black);
 						Output.Log(e);
 					}
 				}

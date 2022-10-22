@@ -23,17 +23,27 @@ This will create exports based on all your available export presets **NOT STABLE
 
 ## All Commands
 Initialize config
-`bodot --init`
+```
+bodot --init
+```
 
 To view current config info
-`bodot --info`
+```
+bodot --info
+```
 
 To build all available exports
-`bodot --build|-b`
+```
+bodot --build|-b
+```
 
 To build and zip exported binaries
-`bodot --build|-b --zip|-z`
+```
+bodot --build|-b --zip|-z
+```
 
 To set config options
-`bodot --config [OPTION] [VALUE]` 
+```
+bodot --config [OPTION] [VALUE]
+``` 
 

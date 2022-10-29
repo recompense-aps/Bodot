@@ -46,16 +46,14 @@ namespace Bodot
 
 		public void OnExecute()
 		{
-			LocalBodotConfig.Load();
-
-			if (LocalBodotConfig.Instance.UseLog)
+			try
 			{
-				var logFile = "./bodot.log";
-
-				if (!File.Exists(logFile))
-					File.Create(logFile);
-
-				Output.UseStream(new StreamWriter(logFile));
+				LocalBodotConfig.Load();
+			}
+			catch (Exception e)
+			{
+				Output.Error($"Could not load config file, please make sure it is not corrupted: {e.Message}");
+				return;
 			}
 
 			var commands = Assembly.GetExecutingAssembly()

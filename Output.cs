@@ -8,6 +8,8 @@ namespace Bodot
 		{
 			foreach(var output in outputs)
 				Console.WriteLine(output);
+
+			Log(string.Join("\n", outputs));
 		}
 
 		public static void Out(ConsoleColor foreGround, ConsoleColor background, params object[] outputs)
@@ -65,7 +67,11 @@ namespace Bodot
 
 		public static void Log(object content)
 		{
-			pipedStream?.Write(content);
+			if (LocalBodotConfig.Instance.UseLog)
+			{
+				var date = DateTime.Now;
+				File.AppendAllText("./bodot.log", $"\n[{date}]\n" + content?.ToString());
+			}
 		}
 
 		public static void UseStream(StreamWriter writer)
@@ -81,8 +87,7 @@ namespace Bodot
 		private static void Write(object content)
 		{
 			Console.Write(content);
-
-			pipedStream?.Write(content);
+			Log(content);
 		}
 	}
 }

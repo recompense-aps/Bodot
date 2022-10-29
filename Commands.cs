@@ -123,6 +123,15 @@ namespace Bodot
 			if (presets.Count() < 1)
 				return ("No export presets could be found. Please configure exports in the godot editor", false);
 
+			if (commandLine.Overwrite && Directory.Exists(root))
+			{
+				Warn($"Overwriting {LocalBodotConfig.Instance.SemanticVersion}");
+				Directory.Delete(root, true);
+			}
+
+			if (Directory.Exists(root))
+				return ($"Build directory {root} already exisits. Please use the --overwrite option to explicitly overwrite build", false);
+
 			Info("Exporting for presets: " + string.Join(",", presets) + "\n");
 
 			foreach(var (preset, betterPreset) in presets.Zip(betterPresets))
@@ -179,7 +188,7 @@ namespace Bodot
 				Out($"\n========================END {preset}========================\n", ConsoleColor.DarkCyan, ConsoleColor.Black);
 			}
 
-			if (LocalBodotConfig.Instance.AutoIncrementPatch)
+			if (LocalBodotConfig.Instance.AutoIncrementPatch && !commandLine.Overwrite)
 			{
 				LocalBodotConfig.ChangePatch(1);
 				LocalBodotConfig.Save();

@@ -36,16 +36,10 @@ namespace Bodot
 		public bool Zip { get; set; } = false;
 
 		[Option(
-			Description = "Sets up option",
-			ShortName = "u"
+			Description = "Do not increment patch on build and overwrite existing build if it exists",
+			ShortName = "ow"
 		)]
-		public bool Up { get; set; } = false;
-
-		[Option(
-			Description = "Sets down option",
-			ShortName = "dn"
-		)]
-		public bool Down { get; set; } = false;
+		public bool Overwrite { get; set; } = false;
 
 		[Argument(0)]
 		public string[]? Args { get; set; }
@@ -82,6 +76,7 @@ namespace Bodot
 						if (!success)
 						{
 							Output.Out($"Failed to execute {command.Name()}", ConsoleColor.Red, ConsoleColor.Black);
+							Output.Out(data ?? "", ConsoleColor.Red, ConsoleColor.Black);
 						}
 						else if (data != null)
 						{

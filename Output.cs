@@ -24,6 +24,26 @@ namespace Bodot
 			Console.ResetColor();
 		}
 
+		public static void Warn(object message)
+		{
+			Out($"[!] {message}\n", ConsoleColor.Yellow, ConsoleColor.Black);
+		}
+
+		public static void Error(object message)
+		{
+			Out($"[!] {message}\n", ConsoleColor.Red, ConsoleColor.Black);
+		}
+
+		public static void Info(object message)
+		{
+			Out($"[-] {message}\n", ConsoleColor.Cyan, ConsoleColor.Black);
+		}
+
+		public static void Success(object message)
+		{
+			Out($"[+] {message}\n", ConsoleColor.Green, ConsoleColor.Black);
+		}
+
 		public static string Ask(object content)
 		{
 			Out($"{content} > ");

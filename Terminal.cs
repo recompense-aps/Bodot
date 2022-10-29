@@ -3,11 +3,12 @@ using System.IO;
 
 namespace Bodot
 {
-	public class Godot
+	public class Terminal
 	{
 		private List<string> args = new List<string>();
+		private string fileName = "";
 
-		public static Godot Create() => new Godot();
+		public static Terminal Create() => new Terminal();
 
 		public void Execute()
 		{
@@ -15,9 +16,9 @@ namespace Bodot
 
 			var process = new Process();
 
-			process.StartInfo.FileName = LocalBodotConfig.Instance.GodotFilePath;
+			process.StartInfo.FileName = fileName;
 			process.StartInfo.Arguments = string.Join(" ", args);
-			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.UseShellExecute = string.IsNullOrWhiteSpace(fileName);
 			process.StartInfo.RedirectStandardOutput = false;
 			process.StartInfo.RedirectStandardError = false;
 			process.StartInfo.RedirectStandardInput = false;
@@ -38,9 +39,21 @@ namespace Bodot
 			process.Close();
 		}
 
-		public Godot WithArg(string arg)
+		public Terminal WithArg(string arg)
 		{
 			args.Add(arg);
+			return this;
+		}
+
+		public Terminal AsGodot()
+		{
+			fileName = LocalBodotConfig.Instance.GodotFilePath;
+			return this;
+		}
+
+		public Terminal AsBash()
+		{
+			fileName = "bash";
 			return this;
 		}
 

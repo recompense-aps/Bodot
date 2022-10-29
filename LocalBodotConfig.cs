@@ -44,6 +44,8 @@ namespace Bodot
 		public bool UseLog { get; set; } = false;
 		public string GodotFilePath { get; set; } = "";
 		public string ExportOutputPath { get; set; } = "";
+		public string[] FilesToCopyPostBuild { get; set; } = new string[0];
+		public string[] DirectoriesToCopyPostBuild { get; set; } = new string[0];
 		public string ComputedMetaVersion => MetaVersion != null ? "-" + MetaVersion : "";
 		public string SemanticVersion => $"{MajorVersion}.{MinorVersion}.{PatchVersion}{ComputedMetaVersion}";
 		public string ComputedExportName => $"{ProjectName}v{SemanticVersion}";

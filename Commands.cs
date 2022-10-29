@@ -106,48 +106,66 @@ namespace Bodot
 		public override (object? data, bool success) Execute(BodotCommandLine commandLine)
 		{
 			if (!File.Exists("./bodot.config"))
-			{
-				Out("[!] No config found in current directory\n", ConsoleColor.Yellow, ConsoleColor.Black);
-				return (null, false);
-			}
+				return ("No config found in current directory", false);
 
 			if (!File.Exists("./export_presets.cfg"))
-			{
-				Out("[!] No export_presets.cfg in current directory. Please configure exports in the godot editor\n", ConsoleColor.Yellow, ConsoleColor.Black);
-				return (null, false);
-			}
+				return ("No export_presets.cfg in current directory. Please configure exports in the godot editor", false);
 
 			var exportConfigFile = File.ReadAllLines("./export_presets.cfg");
-
 			var root = $"./{LocalBodotConfig.Instance.ExportOutputPath}/{LocalBodotConfig.Instance.SemanticVersion}";
-
 			var presets = exportConfigFile
 				.Where(x => x.Contains("name=") && !x.Contains("_"))
 				.Select(x => x.Split('=').ElementAtOrDefault(1) ?? "")
 				.Where(x => !string.IsNullOrEmpty(x))
 			;
-
 			var betterPresets = presets.Select(x => x.ToLower().Replace(" ", "-").Replace("\"", "").Replace("/", "-"));
 
-			Out("Exporting for presets: " + string.Join(",", presets) + "\n");
+			if (presets.Count() < 1)
+				return ("No export presets could be found. Please configure exports in the godot editor", false);
+
+			Info("Exporting for presets: " + string.Join(",", presets) + "\n");
 
 			foreach(var (preset, betterPreset) in presets.Zip(betterPresets))
 			{
 				Out($"\n========================BEGIN {preset}========================\n", ConsoleColor.DarkCyan, ConsoleColor.Black);
 
-				Directory.CreateDirectory($"{root}/{betterPreset}");
+				var presetFolder = $"{root}/{betterPreset}";
+				var fileName = $"{presetFolder}/{LocalBodotConfig.Instance.ComputedExportName}" + (betterPreset.Contains("windows") ? ".exe" : "");
+				
+				Directory.CreateDirectory(presetFolder);
 
-				var fileName = $"{root}/{betterPreset}/{LocalBodotConfig.Instance.ComputedExportName}";
-
-				if (betterPreset.Contains("windows"))
-					fileName += ".exe";
-
-				Godot.Create()
+				Terminal.Create()
+					.AsGodot()
 					.WithArg("--export")
 					.WithArg("--no-window")
 					.WithArg($"{preset}")
 					.WithArg(fileName)
 					.Execute();
+
+				foreach(var file in LocalBodotConfig.Instance.FilesToCopyPostBuild)
+				{
+					if (!File.Exists(file))
+					{
+						Warn($"Cannot copy '{file}'. It does not exist.");
+						continue;
+					}
+
+					File.Copy(file, $"{presetFolder}/{Path.GetFileName(file)}");
+					Success($"Coppied '{file}'");
+				}
+
+				foreach(var dir in LocalBodotConfig.Instance.DirectoriesToCopyPostBuild)
+				{
+					if (!Directory.Exists(dir))
+					{
+						Warn($"Cannot copy '{dir}'. It does not exist.");
+						continue;
+					}
+
+					Copy(dir, presetFolder + "/" + dir.Replace("./", ""));
+					Success($"Coppied '{dir}'");
+				}
+
 			
 				if (commandLine.Zip)
 				{
@@ -157,6 +175,7 @@ namespace Bodot
 
 					File.Move(zipName, $"./{root}/{betterPreset}/{LocalBodotConfig.Instance.SemanticVersion}-{betterPreset}.zip");
 				}
+
 				Out($"\n========================END {preset}========================\n", ConsoleColor.DarkCyan, ConsoleColor.Black);
 			}
 
@@ -168,6 +187,33 @@ namespace Bodot
 
 			return (null, true);
 		}
-		
+
+		public static void Copy(string sourceDirectory, string targetDirectory)
+		{
+			DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
+			DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
+
+			CopyAll(diSource, diTarget);
+		}
+
+		public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+		{
+			Directory.CreateDirectory(target.FullName);
+
+			// Copy each file into the new directory.
+			foreach (FileInfo fi in source.GetFiles())
+			{
+				Info($"Copying {target.FullName}/{fi.Name}");
+				fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+			}
+
+			// Copy each subdirectory using recursion.
+			foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+			{
+				DirectoryInfo nextTargetSubDir =
+					target.CreateSubdirectory(diSourceSubDir.Name);
+				CopyAll(diSourceSubDir, nextTargetSubDir);
+			}
+		}
 	}
 }
